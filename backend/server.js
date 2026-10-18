@@ -49,6 +49,7 @@ mongoose.connect(MONGODB_URI)
   .then(async () => {
     console.log("MongoDB terhubung.");
     await seedIfEmpty();
-    app.listen(PORT, () => console.log(`API berjalan di port ${PORT}`));
   })
   .catch((e) => { console.error("Gagal terhubung ke MongoDB:", e.message); process.exit(1); });
+
+module.exports = app;
