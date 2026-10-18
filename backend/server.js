@@ -12,7 +12,7 @@ const seedIfEmpty = require("./seed");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/toko_online";
+const MONGODB_URI = "mongodb+srv://gallagherprosjects_db_user:RfwLTWtIfTieYp01@cluster0.rypc46y.mongodb.net/toko_online?retryWrites=true&w=majority";
 
 const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:5173")
   .split(",").map((s) => s.trim().replace(/\/$/, ""));
