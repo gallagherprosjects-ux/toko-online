@@ -1,5 +1,15 @@
-<<<<<<< HEAD
-{ "version": 2, "builds": [ { "src": "server.js", "use": "@vercel/node" } ], "routes": [ { "src": "/(.*)", "dest": "server.js" } ] } 
-=======
-{ "version": 2, "builds": [ { "src": "server.js", "use": "@vercel/node" } ], "routes": [ { "src": "/(.*)", "dest": "server.js" } ] } 
->>>>>>> 0c50d95 (Persiapan deploy backend ke Vercel)
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "server.js"
+    }
+  ]
+}
