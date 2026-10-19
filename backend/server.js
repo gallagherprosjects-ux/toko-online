@@ -14,12 +14,43 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 const MONGODB_URI = "mongodb+srv://gallagherprosjects_db_user:RfwLTWtIfTieYp01@cluster0.rypc46y.mongodb.net/toko_online?retryWrites=true&w=majority";
 
-// Perbaikan CORS: Mengizinkan Localhost dan Link Vercel Frontend
+// === KONEKSI GLOBAL UNTUK VERCEL ===
+let cached = global.mongoose;
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
+
+async function connectDB() {
+  if (cached.conn) {
+    return cached.conn;
+  }
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGODB_URI).then((mongoose) => {
+      console.log("MongoDB terhubung.");
+      return mongoose;
+    });
+  }
+  cached.conn = await cached.promise;
+  return cached.conn;
+}
+
+// Middleware untuk memastikan koneksi DB siap sebelum request diproses
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    // Jalankan seed hanya jika koleksi masih kosong
+    await seedIfEmpty();
+    next();
+  } catch (err) {
+    console.error("Gagal koneksi DB:", err.message);
+    res.status(500).json({ message: "Gagal terhubung ke database." });
+  }
+});
+
 const allowedOrigins = ["http://localhost:5173", "https://toko-online-g7cu.vercel.app"];
 
 app.use(cors({
   origin(origin, cb) {
-    // origin bernilai undefined jika diakses lewat Postman/Server-to-Server
     if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
     cb(new Error("Origin tidak diizinkan oleh CORS: " + origin));
   },
@@ -36,7 +67,6 @@ app.use("/api/orders", orderRoutes);
 
 app.use((req, res) => res.status(404).json({ message: "Endpoint tidak ditemukan." }));
 
-// penanganan error terpusat
 app.use((err, req, res, next) => {
   if (err.name === "ValidationError") {
     return res.status(400).json({ message: Object.values(err.errors).map((e) => e.message).join(" ") });
@@ -45,12 +75,5 @@ app.use((err, req, res, next) => {
   if (String(err.message).startsWith("Origin tidak diizinkan")) return res.status(403).json({ message: err.message });
   res.status(err.status || 500).json({ message: err.message || "Terjadi kesalahan server." });
 });
-
-mongoose.connect(MONGODB_URI)
-  .then(async () => {
-    console.log("MongoDB terhubung.");
-    await seedIfEmpty();
-  })
-  .catch((e) => { console.error("Gagal terhubung ke MongoDB:", e.message); process.exit(1); });
 
 module.exports = app;
