@@ -14,11 +14,12 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 const MONGODB_URI = "mongodb+srv://gallagherprosjects_db_user:RfwLTWtIfTieYp01@cluster0.rypc46y.mongodb.net/toko_online?retryWrites=true&w=majority";
 
-const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:5173")
-  .split(",").map((s) => s.trim().replace(/\/$/, ""));
+// Perbaikan CORS: Mengizinkan Localhost dan Link Vercel Frontend
+const allowedOrigins = ["http://localhost:5173", "https://toko-online-g7cu.vercel.app"];
 
 app.use(cors({
   origin(origin, cb) {
+    // origin bernilai undefined jika diakses lewat Postman/Server-to-Server
     if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
     cb(new Error("Origin tidak diizinkan oleh CORS: " + origin));
   },
